@@ -11,22 +11,26 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    userID: {
-      type: Schema.Types.UUID,
-      ref: 'User',
-      required: true,
-    },
 })
 
 // Define quote schema
 const quoteSchema = new mongoose.Schema({
-  userID: {
-    type: Schema.Types.UUID,
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  quote: {
-    type: String,
+  quotes: {
+    type: [{
+      category: {
+        type: String,
+        required: true,
+      },
+      text: {
+        type: String,
+        required: true,
+      },
+    }],
     required: true,
   },
   createdAt: {
