@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import axios from 'axios';
 import OpenAI from 'openai';
 import { User, Quote } from './mongoSchemas.js';
 
@@ -77,9 +76,41 @@ app.post('/login', async (req, res) => {
   }
 })
 
+// Authenticate token middleware
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    req.userId = user.userId;
+    next();
+  });
+};
+
 // Protected route handler
 app.get('/protected', authenticateToken, (req, res) => {
   res.json({ message: 'Access granted', userId: req.userId });
+})
+
+// Generate quote route handler
+app.post('/generate-quote', authenticateToken, async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const response = await openaiClient.responses.create({
+      model: 'gpt-4o-mini',
+      instructions: 'Generate a quote based on the following prompt: ' + prompt,
+      input: prompt,
+      max_output_tokens: 100,
+    })
+    const quote = response.output_text;
+    res.json({ quote });
+  } catch (error) {
+    res.status(500).json({ message: 'Error generating quote', error: error.message });
+  }
 })
 
 // Run the server on port 3001
