@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
 
 // Define quote schema
 const quoteSchema = new mongoose.Schema({
-  _id: {
+  userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
@@ -32,8 +32,13 @@ const quoteSchema = new mongoose.Schema({
       },
     }],
     required: true,
+    default: [],
   },
   createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
     type: Date,
     default: Date.now,
   },
