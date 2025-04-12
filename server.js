@@ -173,7 +173,7 @@ app.post('/quotes', authenticateToken, async (req, res) => {
 
     // Update the user's quotes in a single document
     const result = await Quote.updateOne(
-      { userID }, // Find the document for the user
+      { userID },
       {
         $push: {
           quotes: {
@@ -182,7 +182,7 @@ app.post('/quotes', authenticateToken, async (req, res) => {
         },
         $set: { updatedAt: new Date() },
       },
-      { upsert: true } // Create a new document if one doesn't exist
+      { upsert: true }
     );
 
     res.json({ message: 'Quotes saved successfully', quotes });
@@ -216,8 +216,10 @@ app.get('/quotes', authenticateToken, async (req, res) => {
 // Delete quote route handler
 app.delete('/quotes', authenticateToken, async (req, res) => {
   try {
+    // Get the userID and quoteToDelete from the request body
     const { userID, quoteToDelete } = req.body;
 
+    // Update the user's quotes in a single document
     const result = await Quote.updateOne(
       { userID },
       {
@@ -231,10 +233,12 @@ app.delete('/quotes', authenticateToken, async (req, res) => {
       }
     );
 
+    // If the quote is not found, return an error
     if (result.modifiedCount === 0) {
       return res.status(404).json({ message: 'Quote not found' });
     }
 
+    // Return a success message
     res.json({ message: 'Quote deleted successfully' });
   } catch (error) {
     res
